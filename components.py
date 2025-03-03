@@ -1,34 +1,44 @@
 import pygame
 import random
+
 def generate_hole_and_pipe_lengths(total_span):
-    """ Denna funktion har till uppgift att generera, en lista på hur lång respketive
-     öppning och pipe ska vara, samt i vilken ordning allting kommer. Allt efter kraven"""
+    """
+    Denna funktion har till uppgift att generera, en lista på hur lång respketive
+    öppning och pipe ska vara, samt i vilken ordning allting kommer. Allt efter kraven.
+    """
     pipe_length_list=[]
     hole_length_list=[]
     pipe_min_length=40
-    hole_min_length=65
-    minimum_hole_diff=5
-    minimum_hole_list=[hole_min_length+2*minimum_hole_diff,hole_min_length+minimum_hole_diff,hole_min_length]
+    hole_min_length=65 
     hole_max_length=100
+    # Minsta skillnaden i storlek mellan ett hål och det nästkommande i storleksordning 
+    minimum_hole_diff=5 
+    # Skapar en lista med de minsta hålen som kan finnas
+    minimum_hole_list=[hole_min_length+2*minimum_hole_diff, hole_min_length+minimum_hole_diff, hole_min_length]
+     
 
-    # Först: hur mycket extra får varje block och hål, utöver minimum kraven?
+    # Först: hur mågnga pixlar extra får varje block och hål, utöver minimum kraven?
     extra_hole_pixels=[0,0,0]
     hole_length_differance=[0,0]
-    while any(number<minimum_hole_diff for number in hole_length_differance):
+    # Kör while-loopen så länge någon av differenserna i hole_length_differance är för små
+    while any(number < minimum_hole_diff for number in hole_length_differance):
         hole_length_list.clear()
+        # Skapar ett antal extra pixlar åt varje hål
         for i in range(0, len(extra_hole_pixels)):
             extra_hole_pixels[i]=random.randrange(0,hole_max_length-minimum_hole_list[i])
+        # Ger extra-pixlarna till hål-listan
         for i in range(0,len(extra_hole_pixels)):
             hole_length_list.append(extra_hole_pixels[i]+ minimum_hole_list[i] )
-        hole_length_list.sort(reverse=True)
+        hole_length_list.sort(reverse=True) # Sorteras från störst till minst
+        # Räknar ut differenserna mellan minsta-mellan och mellan-största
         for i in range(0,2):
             hole_length_differance[i]=hole_length_list[i]-hole_length_list[i+1]
 
 
     # Baserat på hur mycket jag har kvar att alokela. Hur mycket ska varje block få, utöver minimun längd?
-    pipe_length_allocate=total_span-sum(hole_length_list)-4*pipe_min_length
+    pipe_length_allocate = total_span - sum(hole_length_list) - 4*pipe_min_length
     cuts = sorted(random.sample(range(0, pipe_length_allocate), 3))
-    cuts.sort(reverse=False)
+    cuts.sort(reverse=False) # Sorteras från minst till störst
 
     pipe_length_list.append(cuts[0]+pipe_min_length)
     pipe_length_list.append(cuts[1]-cuts[0]+pipe_min_length)
@@ -54,10 +64,16 @@ class Ground:
     ground_level = 500
 
     def __init__(self, win_width):
+        """
+        Definerar en rectangle som blir marken
+        """
         self.x, self.y = 0, Ground.ground_level
         self.rect = pygame.Rect(self.x, self.y, win_width, 5)
 
     def draw(self, window):
+        """
+        Ritar upp markens rectangle i vårat fönster i vitt
+        """
         pygame.draw.rect(window, (255, 255, 255), self.rect)
 
 class Pipes:
