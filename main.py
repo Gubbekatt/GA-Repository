@@ -9,18 +9,30 @@ clock = pygame.time.Clock()
 population = population.Population(200)
 
 def generate_pipes():
+    """
+    Lägger till rören till "pipes" listan i config
+    """
     config.pipes.append(components.Pipes(config.win_width))#and components.Pipes(config.window) ?
 
 def generate_hinder():
+    """
+    Lägger till hindren till "hinder" listan i config
+    """
     config.hinder.append(components.Hinder(config.win_height))
 
 def quit_game():
+    """
+    En funktion för att stänga programmet ordentligt
+    """
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
 
 def main():
+    """
+    Våran huvud-funktion som driver spelet
+    """
     pipes_spawn_time = 10
 
     while True:
