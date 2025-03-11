@@ -1,0 +1,164 @@
+import random
+import time
+import copy
+
+def generate_hole_and_pipe_lengths(total_span):
+    """ Denna funktion har till uppgift att generera, en lista på hur lång respketive
+     öppning och pipe ska vara, samt i vilken ordning allting kommer. Allt effter kraven"""
+    pipe_length_list=[]
+    hole_length_list=[]
+    pipe_min_length=40
+    hole_min_length=35  # ändtra till possible 15 pixels.
+    minimum_hole_diff=20
+    minimum_hole_list=[hole_min_length+2*minimum_hole_diff,hole_min_length+minimum_hole_diff,hole_min_length]
+    hole_max_length=100
+
+    # Först: hur mycket extra får varje  och hål, utöver minimun kraven?
+    extra_hole_pixels=[0,0,0]
+    hole_length_differance=[0,0]
+    n=0
+    while any(number<minimum_hole_diff for number in hole_length_differance):
+        hole_length_list.clear()
+        for i in range(0, len(extra_hole_pixels)):
+            extra_hole_pixels[i]=random.randrange(0,hole_max_length-minimum_hole_list[i])
+        for i in range(0,len(extra_hole_pixels)):
+            hole_length_list.append(extra_hole_pixels[i]+ minimum_hole_list[i] )
+        hole_length_list.sort(reverse=True)
+        for i in range(0,2):
+            hole_length_differance[i]=hole_length_list[i]-hole_length_list[i+1]
+
+
+
+
+    # Baserat på hur mycket jag har kvar att alokela. Hur mycket ska varje block få, utöver minimun längd?
+    pipe_length_allocate=total_span-sum(hole_length_list)-4*pipe_min_length
+    cuts = sorted(random.sample(range(0, pipe_length_allocate), 3))
+    cuts.sort(reverse=False)
+
+    pipe_length_list.append(cuts[0]+pipe_min_length)
+    pipe_length_list.append(cuts[1]-cuts[0]+pipe_min_length)
+    pipe_length_list.append(cuts[2]-cuts[1]+pipe_min_length)
+    pipe_length_list.append(pipe_length_allocate-cuts[2]+pipe_min_length)
+
+    # nu slumpar vi ordningen på alla värrden
+    random.shuffle(pipe_length_list)
+    random.shuffle(hole_length_list)
+
+    return hole_length_list,pipe_length_list,n
+
+n=0
+lista=[]
+while n<100:
+    a,b,c=generate_hole_and_pipe_lengths(600)
+    if [a,b] not in lista:
+        lista.append(  [a,b,c] )
+    n+=1
+
+
+
+def pos_simulation(y_pos,y_vel,frame_amount):
+    """ denna är en simulation som beskriver rangen av var ett objekt kan vara efter x antal frmaes.
+        Med andra ord, vad är superpositionen av alla möjliga y _leds tillstånd?
+        :parameter orginell y posetion, y hastighet samt antal antal frame som det borde fortgå
+                obs: Notera att giltiga hastighetr ör mellan max och inital neg grav
+        :returns En lista med upper lower bound för y värden.
+        """
+    time_1=time.time()
+    increment=0.25
+    y_vel_max=5
+    initial_neg_grav=-5
+    edge=2   # vad måste y vel vara innan jag får hoppa igen
+    flap_cooldown= (2-(initial_neg_grav))/increment
+    flap_cooldown_tracker=0
+    if y_vel>=y_vel_max:
+        grav_cooldown=0
+    grav_cooldown=(y_vel_max-y_vel)/increment   # i hur många frmaes får jag accelerera?
+
+
+    # räknar ut lower bound
+    if frame_amount < grav_cooldown:
+        y_pos_lower = y_pos + increment * (frame_amount + 1) * frame_amount * (1 / 2) + y_vel * frame_amount
+    else:
+        y_pos_lower=y_pos+increment*(grav_cooldown+1)*grav_cooldown*(1/2)+y_vel*grav_cooldown
+        frame_left=frame_amount-grav_cooldown
+        y_pos_lower += frame_left * y_vel_max
+
+    # räknar nu ut upper bound
+    y_vel=-5
+    if frame_amount<flap_cooldown:
+        y_pos_upper=y_pos+increment*(frame_amount+1)*frame_amount*(1/2)+y_vel*frame_amount
+
+
+    else:
+        y_pos_upper=0
+        flap_amount=int(frame_amount/flap_cooldown)
+        for i in range(flap_amount):
+            y_pos_upper = y_pos + increment * (flap_cooldown + 1) * flap_cooldown * (1 / 2) + y_vel * flap_cooldown
+            y_pos=y_pos_upper
+        frames_left=frame_amount-(flap_amount)*flap_cooldown
+        y_pos_upper=y_pos + increment * (frames_left + 1) * frames_left * (1 / 2) + y_vel * frames_left
+    time_gone=time_1-time.time()
+    return [y_pos_upper,y_pos_lower]
+def ranges_overlap(r1, r2):
+
+    return r1[0] < r2[1] and r2[0] < r1[1]
+def one_hole_check(start_pos_list,target_pos_list,frame_amount ):
+    """ Denna funktion har till uppgift att kolla om en resväg mellan två hål är möjlig
+        på en viss angiven mängd frames.
+    :parameter vilka y posetionr mitt nuvrnde och mål hål tar upp ( 2 elemnt var),  första är upper andra lower
+                samt hur många frames jag får
+    :returns Ett bollean värde iffal jag klarar
+    """
+    hole_pass_value=False
+    y_vel_max=5  # vad är mitt högsta graviation i spelet?
+    # räknar ut uppebound och lowerbound genom att ge den så optimala värden som möjligt
+    upper_bound=pos_simulation(start_pos_list[0],0,frame_amount)[0]
+    lower_bound=pos_simulation(start_pos_list[1],0,frame_amount)[1]
+
+    y_pos_range=[upper_bound,lower_bound]
+    y_pos_range_target=[target_pos_list[0],target_pos_list[1]]
+
+
+    return ranges_overlap(y_pos_range,y_pos_range_target)
+def multiple_hole_check(configuration_1,configuration_2,frame_amount):
+    """ denna funktion kollar hur många av mina 9 möjliga resvägar som är gå bara
+        :parameter  mina två pipes och frame amount
+        :returns  en lista med 9 sanningsvärden om det går elelr ej
+         """
+
+    truth_value=[]
+
+    for i in range(1,4):
+        for j in range(1,4):
+           a=[sum(configuration_1[1][0:i])+sum(configuration_1[0][0:i-1]),
+                                              sum(configuration_1[1][0:i])+sum(configuration_1[0][0:i])]
+           b=[sum(configuration_2[1][0:j])+sum(configuration_2[0][0:j-1]),
+                                              sum(configuration_2[1][0:j]) + sum(configuration_2[0][0:j])]
+
+           truth_value.append(one_hole_check(a,b,frame_amount))
+    return truth_value
+def pipe_list_getter(current_pipe,path_value,pixel_amount,pipe_amount,pipe_list):
+    """ Denna funkiton gör följande; baserat på vilken pipe du har just nu, hur många pixels distans du vill ha nästa
+        och hur många av resvägarna ska vara möjliga så komemr den returnera en lista med pipe configurations som
+        passar ditt önskemål
+        :parameter pipe nu, pixel mängd, hur många vägar möliga, hur många pipes, och vilken pipe lista kolllar jag på?
+        :returns en lista med pipes du kan välja mellan"""
+    tinme_1=time.time()
+    current_pipe_list=copy.deepcopy(pipe_list)
+    random.shuffle(current_pipe_list)
+    pipe_answer=[]
+
+    pipe_vel=1.5
+    frame_amount=pixel_amount/pipe_vel
+    i=0
+    while len(pipe_answer)!=pipe_amount and i<len(current_pipe_list):
+        a=multiple_hole_check(current_pipe,current_pipe_list[i],frame_amount)
+        if a.count(True)==path_value:
+            pipe_answer.append(current_pipe_list[i])
+            print(current_pipe_list[i])
+        i+=1
+    time_2=time.time()
+    return pipe_answer,time_2-tinme_1
+answer=pipe_list_getter(lista[2],4,10,6,lista)
+print(answer)
+print(len(answer)-1)
