@@ -17,16 +17,16 @@ class Brain:
                 self.nodes.append(node.Node(i))
                 self.nodes[i].layer = 0
             # Skapar bias
-            self.nodes.append(node.Node(4))
-            self.nodes[4].layer = 0
-            # Skapar output neuron
             self.nodes.append(node.Node(5))
-            self.nodes[5].layer = 1
+            self.nodes[5].layer = 0
+            # Skapar output neuron
+            self.nodes.append(node.Node(6))
+            self.nodes[6].layer = 1
 
             # Skapar connections (linjerna med vikter)
-            for i in range(0, 5):
+            for i in [0,1,2,3,4,5]:
                 self.connections.append(connection.Connection(self.nodes[i],
-                                                              self.nodes[5],
+                                                              self.nodes[6],
                                                               random.uniform(-1, 1)))
 
     def connect_nodes(self):
@@ -48,13 +48,13 @@ class Brain:
         for i in range(0, self.inputs):
             self.nodes[i].output_value = vision[i]
 
-        self.nodes[4].output_value = 1
+        self.nodes[5].output_value = 1
 
         for i in range(0, len(self.net)):
             self.net[i].activate()
 
         # Få output-värde (y_hat) från output neuron
-        output_value = self.nodes[5].output_value
+        output_value = self.nodes[6].output_value
 
         # Reset input neuroner (perceptroner) - (only node 6 Missing Natural Selection in this case?)
         for i in range(0, len(self.nodes)):
