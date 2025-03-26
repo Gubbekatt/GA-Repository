@@ -37,7 +37,7 @@ class Brain:
                                                                   self.nodes[j],
                                                                   random.uniform(-1, 1)))
             # Skapar connections (linjerna med vikter) till output neuron och bias
-            for i in [6,7,8,9,10,11]):
+            for i in [6,7,8,9,10,11]:
                 self.connections.append(connection.Connection(self.nodes[i],
                                                               self.nodes[12],
                                                               random.uniform(-1, 1)))
