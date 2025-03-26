@@ -112,8 +112,8 @@ class Brain:
             if n.id == id:
                 return n
 
-    # 80 % chance that a connection undergoes mutation
-    def mutate(self):
-        if random.uniform(0, 1) < 0.8:
-            for i in range(0, len(self.connections)):
-                self.connections[i].mutate_weight()
+    def mutate(self, strength,mutation_type):
+        # Denna funktion kan bara tillgås genom nya gentiska spelare och kris mutaion.
+        # Så type är antigen 1 eller 2
+        for i in range(0, len(self.connections)):
+            self.connections[i].mutate_weight(strength,mutation_type)
