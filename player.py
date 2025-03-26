@@ -19,9 +19,9 @@ class Player:
 
         # AI
         self.decision = None
-        self.vision = [0.5, 1, 0.5]
+        self.vision = [0.5, 1, 0.5 , 0.5 ,0.5]
         self.fitness = 0
-        self.inputs = 3
+        self.inputs = 5
         self.brain = brain.Brain(self.inputs)
         self.brain.generate_net()
         self.pipes_passed=[]
@@ -98,24 +98,33 @@ class Player:
                 return p
 
     # AI related functions
-    def look(self):
+        def look(self):
         pipe=Player.closest_pipe()
         if config.pipes:
             # Line to top pipe
-            self.vision[0] = max(0,self.rect.center[1] - pipe.pipe_1.bottom)/500
-
+            self.vision[0] = (self.rect.center[1] - pipe.pipe_1.bottom)/500
             pygame.draw.line(config.window, self.color, self.rect.center,
                              (self.rect.center[0], pipe.pipe_1.bottom))
 
-            # Line to mid pipe
-            self.vision[1] = max(0, self.closest_pipe().x - self.rect.center[0]) / 500
-            pygame.draw.line(config.window, self.color, self.rect.center,
-                             (pipe.x, self.rect.center[1]))
-
             # Line to bottom pipe
-            self.vision[2] = max(0,pipe.pipe_2.top - self.rect.center[1]) / 500
+            self.vision[1] = (pipe.pipe_2.top - self.rect.center[1]) / 500
             pygame.draw.line(config.window, self.color, self.rect.center,
                              (self.rect.center[0], pipe.pipe_2.top))
+
+            # line to top pipe forhole 2
+            self.vision[2] = ( self.rect.center[1] - pipe.pipe_2.bottom) / 500
+            pygame.draw.line(config.window, self.color, self.rect.center,
+                             (self.rect.center[0], pipe.pipe_2.bottom))
+
+            # Line to bottom pipe for hole 2
+            self.vision[3] = ( pipe.pipe_3.top - self.rect.center[1]) / 500
+            pygame.draw.line(config.window, self.color, self.rect.center,
+                             (self.rect.center[0], pipe.pipe_3.top))
+
+            # Line to mid pipe
+            self.vision[4] = max(0, self.closest_pipe().x - self.rect.center[0]) / 500
+            pygame.draw.line(config.window, self.color, self.rect.center,
+                             (pipe.x, self.rect.center[1]))
     def think(self):
         self.decision = self.brain.feed_forward(self.vision)
         if self.decision > 0.73:
