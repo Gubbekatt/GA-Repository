@@ -82,7 +82,7 @@ class Brain:
             if n.id == id:
                 return n
 
-     def mutate(self, strength,mutation_type):
+    def mutate(self, strength,mutation_type):
         # Denna funktion kan bara tillgås genom nya gentiska spelare och kris mutaion.
         # Så type är antigen 1 eller 2
         for i in range(0, len(self.connections)):
