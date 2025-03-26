@@ -1,28 +1,64 @@
 import matplotlib.pyplot as plt
+from matplotlib.lines import lineStyles
+from matplotlib import pyplot as plt
+from numpy.ma.core import indices
 
 
-# Här kan du lägga in score_list för att visualisera den
-values = [343, 401, 386, 408, 393, 401, 409, 394, 398, 392, 397, 411, 481, 515, 403, 397,
-          588, 409, 402, 404, 581, 411, 486, 513, 600, 585, 498, 513, 603, 1201, 499, 695,
-          599, 988, 795, 599, 409, 405, 791, 607, 883, 899, 616, 582, 608, 790, 816, 598,
-          693, 905, 592, 401, 1192, 595, 704, 914, 784, 894, 899, 599, 999, 599, 604, 601,
-          992, 608, 790, 799, 1114, 688, 813, 881, 899, 799, 1499, 1199, 1299, 699, 799,
-          899, 1299, 1199, 717, 781, 1103, 1595, 999, 802, 907, 1188, 1208, 1102, 1087,
-          1199, 1099, 1017, 893, 687, 1500, 1098, 1374, 937, 1005, 992, 801, 688, 1096,
-          1216, 1084, 800, 896, 1008, 890, 811, 787, 999, 1105, 794, 817, 580, 812, 605,
-          582, 797, 1012, 686, 802, 711, 1400, 803, 791, 592, 1004, 689, 899, 1007]
+def plot_score_lists(fitness_list, marker1='o', marker2='s',marker3='x'):
+    working_fitness_list= list(zip(*fitness_list))
+    x_values=range(len(fitness_list))
+    plt.figure(figsize=(10,5))
+    colors=['b','r','k']
+    labels=['lowest_fitness','median_fitness','highest fitness']
+    for i in range(0,len(working_fitness_list)):
+        plt.plot(x_values,working_fitness_list[i],label=labels[i%len(colors)], marker='.',
+                 color=colors[i%len(colors)])
+    plt.xlabel('Generation')
+    plt.ylabel('respective fitness values')
+    plt.title("fitness graph")
+    plt.legend()
+    plt.grid()
+    plt.show()
+def plot_death(death_list):
+    plt.style.use('fivethirtyeight')
+    bins = [ i  for i in range(0,12000,100) ]
+    plt.hist(death_list, bins=bins, edgecolor='black')
+
+    plt.title('death_distrubution')
+    plt.xlabel('frames survives')
+    plt.ylabel('amount of player')
+
+    plt.tight_layout()
+    plt.show()
+def plot_gene(gene_list, marker1='o'):
+    gene_lines = list(zip(*gene_list))  # Transpose the list
+    x_values = range(len(gene_list))  # X-axis should match the number of sublists
+    colors = ['r', 'b', 'k', 'y']  # Limited colors
+
+    for i in range(len(gene_lines)):  # Iterate over transposed lists
+        plt.plot(x_values, gene_lines[i], label=f'Gene {i}',
+                 linestyle='-', color=colors[i % len(colors)])  # Cycle colors
+
+    plt.xlabel('Generation')
+    plt.ylabel('Gene Value')
+    plt.title("Genetic Variation Graph")
+    plt.legend()
+    plt.grid()
+    plt.show()
 
 
-# X values are just the index positions
-x_values = list(range(len(values)))
 
-# Plot the graph
-plt.plot(x_values, values, marker='o', linestyle='-')
 
-# Labels
-plt.xlabel("Index")
-plt.ylabel("Value")
-plt.title("Graph of List Values")
 
-# Show the graph
-plt.show()
+
+
+
+
+
+
+
+# Example usage
+list1 = [517, 590, 1808, 151482, 30300, 20097]
+list2 = [118.06, 123.605, 197.505, 937.865, 453.47, 452.21]
+
+

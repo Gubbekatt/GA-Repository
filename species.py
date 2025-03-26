@@ -1,5 +1,8 @@
+
 import operator
 import random
+
+""" här vill jag ta ort hela spcjes funktionen och kanske fylla den med något annat """
 
 class Species:
     def __init__(self, player):

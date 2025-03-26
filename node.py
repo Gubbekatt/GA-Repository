@@ -1,5 +1,8 @@
+
 import math
 
+""" efter inspection kan jag hålla kvar nod delen som den är, doc skall if self.layer=01 ändras
+så att flera neuroner kan ha tållgång till sigmoid funktionen, kolla i clone!"""
 
 class Node:
     def __init__(self, id_number):
@@ -13,11 +16,12 @@ class Node:
         def sigmoid(x):
             return 1/(1+math.exp(-x))
 
-        if self.layer >= 1:
+        if self.layer == 1:
             self.output_value = sigmoid(self.input_value)
 
         for i in range(0, len(self.connections)):
-            self.connections[i].to_node.input_value += self.connections[i].weight * self.output_value
+            self.connections[i].to_node.input_value += \
+                self.connections[i].weight * self.output_value
 
     def clone(self):
         clone = Node(self.id)

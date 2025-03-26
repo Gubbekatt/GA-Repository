@@ -1,18 +1,29 @@
-import brain
 import pygame
-from population import Population
 from sys import exit
+from numpy.ma.extras import average
+from pygame import K_SPACE
 import config
 import components
 import population
+import graphic
 
 pygame.init()
 clock = pygame.time.Clock()
-population = population.Population(200)
+population = population.Population(151)
 
-def game_menu(score_value, screen, highscore_value, generation, last_score_value):
-    """
-    Denna kommer skriva ut min poäng innan jag förlorade (genom att score value är det sista returvärdet av,
+
+def generate_pipes():
+    config.pipes.append(components.Pipes(config.win_width))
+def quit_game(generational_fitness_list,death_list,weight_variation_list):
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            graphic.plot_score_lists(generational_fitness_list)
+            graphic.plot_death(death_list)
+            graphic.plot_gene(weight_variation_list)
+            pygame.quit()
+            exit()
+def game_menu(score_value, screen, highscore_value, generation, last_score_value,average_fitness):
+    """ Denna kommer skriva ut min poäng innan jag förlorade (genom att score value är det sista returvärdet av,
     display score, detta görs endast om score har ett värde, annars skrivs ett välkomst-meddelande
     """
     test_font = pygame.font.Font(None, 25)
@@ -32,76 +43,66 @@ def game_menu(score_value, screen, highscore_value, generation, last_score_value
     title_surface_rect_4 = title_surface_4.get_rect(midleft=(170, 50))
     screen.blit(title_surface_4, title_surface_rect_4)
 
-
-
-def generate_pipes():
-    config.pipes.append(components.Pipes(config.win_width))#and components.Pipes(config.window) ?
-
-def generate_hinder():
-    config.hinder.append(components.Hinder(config.win_height))
-
-def quit_game(score_list):
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            print(score_list)
-            pygame.quit()
-            exit()
-
-
+    title_surface_5 = test_font.render("average fittnes: " + str(average_fitness), False, "Gold")
+    title_surface_rect_5 = title_surface_5.get_rect(midleft=(20, 75))
+    screen.blit(title_surface_5, title_surface_rect_5)
 def main():
-    pipes_spawn_time = 10
-    score = 0
-    highscore = 0
-    last_score = 0
-    score_list=[]
+    n=1
+   # parametrar som jag använder för att spåra framgången
+    pipes_spawn_time = -1
+    score=0
+    high_score=0
+    last_score=0
+    average_score=0
+
     while True:
-        quit_game(score_list)
+        quit_game(population.fitness_list,population.death_place_list,population.weight_st_variation_list)
 
         config.window.fill((0, 0, 0))
 
-        # Spawn Ground
+        # Spawn Ground and pipes
         config.ground.draw(config.window)
-
-        # Spawn Pipes
         if pipes_spawn_time <= 0:
             generate_pipes()
-            generate_hinder()
-            pipes_spawn_time = 200
-        pipes_spawn_time -= 1
+            pipes_spawn_time = 250
+        pipes_spawn_time -= 1.1
 
+        # update players and do selection
         for p in config.pipes:
             p.draw(config.window)
             p.update()
             if p.off_screen:
                 config.pipes.remove(p)
-
-        for h in config.hinder:
-            h.draw(config.window)
-            h.update()
-            if h.offscreen_y == True:
-                h.direction *= -1
-
-            if h.offscreen_x == True:
-                config.hinder.remove(h)
-
         if not population.extinct():
             population.update_live_players()
-            # print(population.players[0].brain.nodes[12].output_value)
-            score += 1
-            game_menu(score, config.window, highscore, population.generation, last_score)
-        else:
-            config.pipes.clear()
-            config.hinder.clear()
-            population.natural_selection()
-            if score > highscore:
-                highscore = score
-            last_score = score
-            score_list.append(score)
-            score = 0
+            score+=1
+            game_menu(score, config.window, high_score, population.generation, last_score,average_score)
 
-        clock.tick(120)
-        pygame.display.flip()
+            # manuell trigga selection
+            if pygame.key.get_pressed()[pygame.K_a] or score>=7000:
+                for p in population.players:
+                    p.alive=False
+                    p.death_place=p.lifespan
+        else:
+            config.pipes.clear()  # kommer detta påverkar ?
+            pipes_spawn_time = -1
+            population.natural_selection()
+            if n==1:
+                graphic.plot_death(population.death_place_list)
+            n += 1
+
+            # now update the respective scores
+            if score>high_score:
+                high_score=score
+            last_score=score
+            score = 0
+            average_score=population.median_fitness
+
+        if pygame.key.get_pressed()[K_SPACE]:
+            clock.tick(120 )
+            pygame.display.flip()
+        else:
+            pass
 
 
 main()
-
