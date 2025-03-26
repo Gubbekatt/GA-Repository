@@ -14,9 +14,9 @@ population = population.Population(151)
 
 def generate_pipes():
     config.pipes.append(components.Pipes(config.win_width))
-def quit_game(generational_fitness_list,death_list,weight_variation_list):
+def quit_game(generational_fitness_list,death_list,weight_variation_list, generation):
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT or generation==200:
             graphic.plot_score_lists(generational_fitness_list)
             graphic.plot_death(death_list)
             graphic.plot_gene(weight_variation_list)
@@ -56,7 +56,7 @@ def main():
     average_score=0
 
     while True:
-        quit_game(population.fitness_list,population.death_place_list,population.weight_st_variation_list)
+        quit_game(population.fitness_list,population.death_place_list,population.weight_st_variation_list,population.generation)
 
         config.window.fill((0, 0, 0))
 
