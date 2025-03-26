@@ -20,7 +20,7 @@ class Brain:
             self.nodes.append(node.Node(5))
             self.nodes[5].layer = 0
             # Skapar 2 neuroner i mellanlagret
-            for i in range(6,8):
+            for i in [6,7]:
                 self.nodes.append(node.Node(i))
                 self.nodes[i].layer = 1
             # Skapar bias
