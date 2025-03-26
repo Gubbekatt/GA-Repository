@@ -17,47 +17,47 @@ class Brain:
                 self.nodes.append(node.Node(i))
                 self.nodes[i].layer = 0
             # Skapar bias
-            self.nodes.append(node.Node(4))
-            self.nodes[4].layer = 0
+            self.nodes.append(node.Node(5))
+            self.nodes[5].layer = 0
             # Skapar 2 neuroner i mellanlager 1
-            for i in range(5,7):
+            for i in [6,7]:
                 self.nodes.append(node.Node(i))
                 self.nodes[i].layer = 1
             # Skapar bias
-            self.nodes.append(node.Node(7))
-            self.nodes[7].layer = 1
+            self.nodes.append(node.Node(8))
+            self.nodes[8].layer = 1
             # Skapar 2 neuroner i mellanlager 2
-            for i in range(8,10):
+            for i in [9,10]:
                 self.nodes.append(node.Node(i))
                 self.nodes[i].layer = 2
             # Skapar bias
-            self.nodes.append(node.Node(10))
-            self.nodes[10].layer = 2
-            # Skapar output neuron
             self.nodes.append(node.Node(11))
-            self.nodes[11].layer = 3
+            self.nodes[11].layer = 2
+            # Skapar output neuron
+            self.nodes.append(node.Node(12))
+            self.nodes[12].layer = 3
 
             # Skapar connections (linjerna med vikter) till mellanlager 1 och bias
-            for i in [0,1,4]:
-                self.connections.append(connection.Connection(self.nodes[i],
-                                                              self.nodes[5],
-                                                              random.uniform(-1, 1)))
-            for i in [2,3,4]:
+            for i in [0,1,4,5]:
                 self.connections.append(connection.Connection(self.nodes[i],
                                                               self.nodes[6],
                                                               random.uniform(-1, 1)))
+            for i in [2,3,4,5]:
+                self.connections.append(connection.Connection(self.nodes[i],
+                                                              self.nodes[7],
+                                                              random.uniform(-1, 1)))
 
             # Skapar connections (linjerna med vikter) till mellanlager 2 och bias
-            for i in [5,6,7]:
-                for j in [8,9]:
+            for i in [6,7,8]:
+                for j in [9,10]:
                     self.connections.append(connection.Connection(self.nodes[i],
                                                                   self.nodes[j],
                                                                   random.uniform(-1, 1)))
 
             # Skapar connections (linjerna med vikter) till output neuron och bias
-            for i in [8,9,10]:
+            for i in [9,10,11]:
                 self.connections.append(connection.Connection(self.nodes[i],
-                                                              self.nodes[11],
+                                                              self.nodes[12],
                                                               random.uniform(-1, 1)))
 
     def connect_nodes(self):
@@ -79,15 +79,15 @@ class Brain:
         for i in range(0, self.inputs):
             self.nodes[i].output_value = vision[i]
 
-        self.nodes[4].output_value = 1
-        self.nodes[7].output_value = 1
-        self.nodes[10].output_value = 1
+        self.nodes[5].output_value = 1
+        self.nodes[8].output_value = 1
+        self.nodes[11].output_value = 1
 
         for i in range(0, len(self.net)):
             self.net[i].activate()
 
         # Få output-värde (y_hat) från output neuron
-        output_value = self.nodes[11].output_value
+        output_value = self.nodes[12].output_value
 
         # Reset input neuroner (perceptroner)
         for i in range(0, len(self.nodes)):
