@@ -59,8 +59,10 @@ def generate_hole_and_pipe_lengths_sub(total_span,hole_amount,value=True):
         random.shuffle(pipe_length_list)
         random.shuffle(hole_length_list)
     else:
-        hole_length_list=[80]
-        pipe_length_list=[210,210]
+        hole_length_list=[80,random.randint(10,15)]
+        pipe_length_list=[100,200, 500-100-200-80-hole_length_list[1]]
+        random.shuffle(pipe_length_list)
+        random.shuffle(hole_length_list)
     return hole_length_list,pipe_length_list
 def generate_hole_and_pipe_lengths(pipe_amount,total_span,hole_amount):
     lista=[]
