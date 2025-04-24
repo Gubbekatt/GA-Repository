@@ -5,7 +5,7 @@ def generate_hole_and_pipe_lengths_sub(total_span,hole_amount,value=True):
     """ 
     Denna funktion har till uppgift att generera, en lista på hur lång respektive
      öppning och pipe ska vara, samt i vilken ordning allting kommer. Allt efter kraven;
-     Huvud-ideen, är att man bestämmer hur mycket varje del av pipen får extra
+     Huvud-ideen, är att man bestämmer hur mycket varje del av pipen får extra, utöver minmun-kraven
      """
     
     if value:
@@ -73,7 +73,7 @@ def generate_hole_and_pipe_lengths_sub(total_span,hole_amount,value=True):
     
 def generate_hole_and_pipe_lengths(pipe_amount,total_span,hole_amount):
     """
-    Utefrån ovan funktion genereras dem faktiska pipe uppsättningarna, total 100 av dem
+    Utefrån ovan funktion genereras dem faktiska pipe uppsättningarna, total 1000 av dem
     """
     lista=[]
     for i in range(pipe_amount):
