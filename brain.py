@@ -1,19 +1,10 @@
-
 import node
 import connection
 import random
 
-"""  definition: inputs referar till vad spelaren ser utöver bias """
-""" saker att ändra:  hela nätverksartitekturen för mer komplexa spel stadium och spelare, alltså i init funktionen 
-                       i feedforward systenmt behöve jag lägga till uputvalue för mina bias för 
-                       ändta öven vilken min output neruon är
-    ändra mutationbs delen i hjärnan """
-
-
-
-
 class Brain:
     def __init__(self, inputs, clone=False):
+        # initierar hjärnan med startdvärdet, baserat på om det är en klon. 
         self.connections = []
         self.nodes = []
         self.inputs = inputs
