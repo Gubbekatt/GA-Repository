@@ -1,26 +1,24 @@
-
-""" intragera min pipe genrator list, och distans mekaniken jag har skapat i koden , och bygg vidare på den i vision """
-
 import pygame
 import random
 import exprimentation
 
-
 class Ground:
     ground_level = 500
-
     def __init__(self, win_width):
         self.x, self.y = 0, Ground.ground_level
         self.rect = pygame.Rect(self.x, self.y, win_width, 5)
-
     def draw(self, window):
         pygame.draw.rect(window, (255, 255, 255), self.rect)
 
-
 class Pipes:
+    """
+    Själva pipen skapas i denna funktion, men den utgår ifrån pipe listan som har
+    skapats i experimentation. Baserat på innehållet i dem listorna blir pipen,
+    lite annorlunda
+    """
     width = 16
     opening = 100
-    holes=1
+    holes=2
     pipe_list=exprimentation.a
     def __init__(self, win_width):
         self.x = win_width
@@ -28,7 +26,6 @@ class Pipes:
         self.pipe_1, self.pipe_2 = pygame.Rect(0, 0, 0, 0), pygame.Rect(0, 0, 0, 0)
         self.pipe_3, self.pipe_4 = pygame.Rect(0, 0, 0, 0), pygame.Rect(0, 0, 0, 0)
         self.pipe_list=[]
-
 
         #game related functions
         self.passed = False
@@ -57,7 +54,7 @@ class Pipes:
             self.pipe_list[:]=[self.pipe_1,self.pipe_2]
         if Pipes.holes == 2:
             self.pipe_list[:] = [self.pipe_1, self.pipe_2,self.pipe_3]
-        if Pipes.holes == 1:
+        if Pipes.holes == 3:
             self.pipe_list[:] = [self.pipe_1, self.pipe_2,self.pipe_3,self.pipe_4]
 
         pygame.draw.rect(window, "White", self.pipe_1)
@@ -66,6 +63,8 @@ class Pipes:
         pygame.draw.rect(window, "White", self.pipe_4)
 
     def update(self):
+        # Här hanteras själva logiken bakom förflyttningarna av pipens, samt när dem försvinner.
+        
         self.x -= 1
         if self.x + Pipes.width <= 50:
             self.passed = True
