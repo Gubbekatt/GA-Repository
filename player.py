@@ -2,7 +2,6 @@ import brain
 import random
 import pygame
 import config
-import components
 
 class Player:
     def __init__(self):
