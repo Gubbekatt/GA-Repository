@@ -1,107 +1,106 @@
-import brain
 import pygame
-from population import Population
 from sys import exit
 import config
 import components
 import population
+import graphic
 
 pygame.init()
 clock = pygame.time.Clock()
 population = population.Population(200)
 
-def game_menu(score_value, screen, highscore_value, generation, last_score_value):
-    """
-    Denna kommer skriva ut min poäng innan jag förlorade (genom att score value är det sista returvärdet av,
-    display score, detta görs endast om score har ett värde, annars skrivs ett välkomst-meddelande
-    """
-    test_font = pygame.font.Font(None, 25)
-    title_surface=test_font.render("score: " + str(score_value), False,"Gold")
-    title_surface_rect=title_surface.get_rect(midleft=(20,25))
-    screen.blit(title_surface,title_surface_rect)
-
-    title_surface_2 = test_font.render("last score: " + str(last_score_value), False, "Gold")
-    title_surface_rect_2 = title_surface_2.get_rect(midleft=(20, 50))
-    screen.blit(title_surface_2, title_surface_rect_2)
-
-    title_surface_3 = test_font.render("generation: " + str(generation), False, "Gold")
-    title_surface_rect_3 = title_surface_3.get_rect(midleft=(170, 25))
-    screen.blit(title_surface_3, title_surface_rect_3)
-
-    title_surface_4 = test_font.render("highscore: " + str(highscore_value), False, "Gold")
-    title_surface_rect_4 = title_surface_4.get_rect(midleft=(170, 50))
-    screen.blit(title_surface_4, title_surface_rect_4)
-
-
-
 def generate_pipes():
-    config.pipes.append(components.Pipes(config.win_width))#and components.Pipes(config.window) ?
+    config.pipes.append(components.Pipes(config.win_width))
 
-def generate_hinder():
-    config.hinder.append(components.Hinder(config.win_height))
-
-def quit_game(score_list):
+def quit_game(generational_fitness_list, death_list, weight_variation_list, generation):
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            print(score_list)
+        if event.type == pygame.QUIT or generation == 200:
+            graphic.plot_score_lists(generational_fitness_list)
+            graphic.plot_death(death_list)
+            graphic.plot_gene(weight_variation_list)
             pygame.quit()
             exit()
 
+def game_menu(score_value, screen, highscore_value, generation, last_score_value, average_fitness):
+    test_font = pygame.font.Font(None, 25)
+
+    title_surface = test_font.render("score: " + str(score_value), False, "Gold")
+    title_surface_rect = title_surface.get_rect(midleft=(20, 25))
+
+    title_surface_2 = test_font.render("last score: " + str(last_score_value), False, "Gold")
+    title_surface_rect_2 = title_surface_2.get_rect(midleft=(20, 50))
+
+    title_surface_3 = test_font.render("generation: " + str(generation), False, "Gold")
+    title_surface_rect_3 = title_surface_3.get_rect(midleft=(170, 25))
+
+    title_surface_4 = test_font.render("highscore: " + str(highscore_value), False, "Gold")
+    title_surface_rect_4 = title_surface_4.get_rect(midleft=(170, 50))
+
+    title_surface_5 = test_font.render("average fittnes: " + str(average_fitness), False, "Gold")
+    title_surface_rect_5 = title_surface_5.get_rect(midleft=(20, 75))
+
+    # visar samtliga värden
+    screen.blit(title_surface_2, title_surface_rect_2)
+    screen.blit(title_surface, title_surface_rect)
+    screen.blit(title_surface_3, title_surface_rect_3)
+    screen.blit(title_surface_4, title_surface_rect_4)
+    screen.blit(title_surface_5, title_surface_rect_5)
 
 def main():
-    pipes_spawn_time = 10
+    """
+    Detta är den huvudsakliga programmet där alla relevanta mekanismer körs. Den sker dock
+    inte i isolation utan bygger på programmets samtliga filer i ett komplext samband.
+    """
+
+    # Spåring av relevanta värden för spel-menyn
+    pipes_spawn_time = -1
     score = 0
-    highscore = 0
+    high_score = 0
     last_score = 0
-    score_list=[]
-    while True:
-        quit_game(score_list)
+    average_score = 0
 
+    while True: # startar Game-loop
+        quit_game(population.fitness_list, population.death_place_list, population.weight_st_variation_list,
+                  population.generation)
+
+        # Ritar ut banans komponenter; Ground, pipes och bakgrund
         config.window.fill((0, 0, 0))
-
-        # Spawn Ground
         config.ground.draw(config.window)
-
-        # Spawn Pipes
-        if pipes_spawn_time <= 0:
+        if pipes_spawn_time <= 0: #Generera pipes
             generate_pipes()
-            generate_hinder()
-            pipes_spawn_time = 200
-        pipes_spawn_time -= 1
-
+            pipes_spawn_time = 250
+        pipes_spawn_time -= 1.1
         for p in config.pipes:
             p.draw(config.window)
             p.update()
-            if p.off_screen:
+            if p.off_screen: # Är utanför skärmen?
                 config.pipes.remove(p)
 
-        for h in config.hinder:
-            h.draw(config.window)
-            h.update()
-            if h.offscreen_y == True:
-                h.direction *= -1
-
-            if h.offscreen_x == True:
-                config.hinder.remove(h)
-
+        # Visar och Upptaderar samtliga spelare Om någon är vid liv.
         if not population.extinct():
             population.update_live_players()
-            # print(population.players[0].brain.nodes[12].output_value)
             score += 1
-            game_menu(score, config.window, highscore, population.generation, last_score)
+            game_menu(score, config.window, high_score, population.generation, last_score, average_score)
+
+            # manuell trigga selection, vid 7000 frames överlevda, eller trycker på a
+            if pygame.key.get_pressed()[pygame.K_a] or score >= 7000:
+                for p in population.players:
+                    p.alive = False
+                    p.death_place = p.lifespan
+        # Om alla är döda, resetta banan, kör natulig selektion och upptadera värden
         else:
             config.pipes.clear()
-            config.hinder.clear()
+            pipes_spawn_time = -1
+
             population.natural_selection()
-            if score > highscore:
-                highscore = score
+
+            if score > high_score:
+                high_score = score
             last_score = score
-            score_list.append(score)
             score = 0
+            average_score = population.median_fitness
 
         clock.tick(120)
         pygame.display.flip()
 
-
 main()
-
